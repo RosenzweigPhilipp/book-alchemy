@@ -32,7 +32,14 @@
         .book-title { font-size: 18px; font-weight: bold; margin-bottom: 5px; color: #333; }
         .book-author { color: #666; margin-bottom: 5px; }
         .book-info { font-size: 14px; color: #888; }
+        .book-actions { margin-top: 10px; }
+        .delete-button { padding: 6px 12px; background-color: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; }
+        .delete-button:hover { background-color: #c82333; }
         .no-books { text-align: center; padding: 40px; color: #666; }
+        .flash-messages { margin-bottom: 20px; }
+        .flash-message { padding: 12px 20px; border-radius: 4px; margin-bottom: 10px; }
+        .flash-message.success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .flash-message.error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
     </style>
 </head>
 <body>
@@ -43,6 +50,17 @@
     </div>
 
     <h1>📚 Library Collection</h1>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="flash-message {{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
 
     <!-- Search Form -->
     <div class="search-section">
@@ -100,6 +118,11 @@
                                 - <strong>Died:</strong> {{ book.author.date_of_death.strftime('%Y-%m-%d') }}
                             {% endif %}
                         {% endif %}
+                    </div>
+                    <div class="book-actions">
+                        <form method="POST" action="/book/{{ book.id }}/delete" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete &quot;{{ book.title }}&quot;?');">
+                            <button type="submit" class="delete-button">🗑️ Delete Book</button>
+                        </form>
                     </div>
                 </div>
             </div>

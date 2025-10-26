@@ -1,16 +1,82 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  </head>
-  <body>
-
-    {% for book in books %}
-    <div> <h3>{{ book.title }}</h3>
+    <title>Library System - Home</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; }
+        .nav { margin-bottom: 30px; }
+        .nav a { margin-right: 15px; text-decoration: none; color: #007bff; }
+        .nav a:hover { text-decoration: underline; }
+        .sort-controls { margin-bottom: 20px; padding: 15px; background-color: #f8f9fa; border-radius: 4px; }
+        .sort-controls label { margin-right: 10px; font-weight: bold; }
+        .sort-controls a { margin-right: 10px; padding: 5px 10px; background-color: #007bff; color: white; text-decoration: none; border-radius: 3px; }
+        .sort-controls a:hover { background-color: #0056b3; }
+        .sort-controls a.active { background-color: #28a745; }
+        .book-item { border: 1px solid #ddd; margin-bottom: 15px; padding: 15px; border-radius: 4px; display: flex; align-items: flex-start; }
+        .book-cover { width: 80px; height: 120px; margin-right: 15px; background-color: #f0f0f0; border: 1px solid #ddd; display: flex; align-items: center; justify-content: center; color: #666; font-size: 12px; text-align: center; }
+        .book-details { flex-grow: 1; }
+        .book-title { font-size: 18px; font-weight: bold; margin-bottom: 5px; color: #333; }
+        .book-author { color: #666; margin-bottom: 5px; }
+        .book-info { font-size: 14px; color: #888; }
+        .no-books { text-align: center; padding: 40px; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <a href="/">Home</a>
+        <a href="/add_author">Add Author</a>
+        <a href="/add_book">Add Book</a>
     </div>
-    {% endfor %}
 
-  </body>
+    <h1>📚 Library Collection</h1>
+
+    <div class="sort-controls">
+        <label>Sort by:</label>
+        <a href="/?sort=title" class="{% if current_sort == 'title' %}active{% endif %}">Title</a>
+        <a href="/?sort=author" class="{% if current_sort == 'author' %}active{% endif %}">Author</a>
+        <a href="/?sort=year" class="{% if current_sort == 'year' %}active{% endif %}">Publication Year</a>
+    </div>
+
+    {% if books %}
+        <div class="book-list">
+            {% for book in books %}
+            <div class="book-item">
+                <div class="book-cover">
+                    <img src="https://covers.openlibrary.org/b/isbn/{{ book.isbn }}-M.jpg" 
+                         alt="Cover for {{ book.title }}" 
+                         style="max-width: 100%; max-height: 100%;"
+                         onerror="this.style.display='none'; this.parentElement.innerHTML='<div>No<br>Cover<br>Available</div>';">
+                </div>
+                <div class="book-details">
+                    <div class="book-title">{{ book.title }}</div>
+                    <div class="book-author">by {{ book.author.name }}</div>
+                    <div class="book-info">
+                        <strong>ISBN:</strong> {{ book.isbn }}<br>
+                        {% if book.publication_year %}
+                            <strong>Published:</strong> {{ book.publication_year }}<br>
+                        {% endif %}
+                        {% if book.author.birth_date %}
+                            <strong>Author Born:</strong> {{ book.author.birth_date.strftime('%Y-%m-%d') }}
+                            {% if book.author.date_of_death %}
+                                - <strong>Died:</strong> {{ book.author.date_of_death.strftime('%Y-%m-%d') }}
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="no-books">
+            <h3>No books in the library yet!</h3>
+            <p>Start by <a href="/add_author">adding an author</a> and then <a href="/add_book">add some books</a>.</p>
+        </div>
+    {% endif %}
+
+    <div style="margin-top: 30px; text-align: center; color: #666;">
+        <p>Total books: {{ books|length }}</p>
+    </div>
+</body>
 </html>

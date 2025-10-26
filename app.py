@@ -17,17 +17,33 @@ db.init_app(app)
 
 @app.route('/')
 def home():
-    """Home page displaying all books with optional sorting."""
+    """Home page displaying all books with optional sorting and searching."""
     sort_by = request.args.get('sort', 'title')  # Default sort by title
+    search_query = request.args.get('search', '').strip()  # Get search query
     
+    # Start with base query
+    if search_query:
+        # Search in book title, author name, and ISBN
+        books_query = Book.query.join(Author).filter(
+            db.or_(
+                Book.title.ilike(f'%{search_query}%'),
+                Author.name.ilike(f'%{search_query}%'),
+                Book.isbn.ilike(f'%{search_query}%')
+            )
+        )
+    else:
+        # No search, get all books
+        books_query = Book.query.join(Author)
+    
+    # Apply sorting
     if sort_by == 'author':
-        books = Book.query.join(Author).order_by(Author.name).all()
+        books = books_query.order_by(Author.name).all()
     elif sort_by == 'year':
-        books = Book.query.order_by(Book.publication_year.desc()).all()
+        books = books_query.order_by(Book.publication_year.desc()).all()
     else:  # default to title
-        books = Book.query.order_by(Book.title).all()
+        books = books_query.order_by(Book.title).all()
     
-    return render_template('home.html', books=books, current_sort=sort_by)
+    return render_template('home.html', books=books, current_sort=sort_by, search_query=search_query)
 
 
 @app.route('/add_author', methods=['GET', 'POST'])

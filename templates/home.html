@@ -9,6 +9,18 @@
         .nav { margin-bottom: 30px; }
         .nav a { margin-right: 15px; text-decoration: none; color: #007bff; }
         .nav a:hover { text-decoration: underline; }
+        
+        .search-section { margin-bottom: 20px; padding: 20px; background-color: #e9f7ff; border-radius: 4px; border: 1px solid #bee5eb; }
+        .search-form { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .search-input { flex-grow: 1; padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
+        .search-input:focus { outline: none; border-color: #007bff; box-shadow: 0 0 0 2px rgba(0,123,255,0.25); }
+        .search-button { padding: 8px 15px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; }
+        .search-button:hover { background-color: #0056b3; }
+        .clear-search { padding: 8px 12px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 4px; font-size: 14px; }
+        .clear-search:hover { background-color: #5a6268; }
+        .search-info { margin-top: 10px; }
+        .search-info p { margin: 0; color: #0c5460; font-size: 14px; }
+        
         .sort-controls { margin-bottom: 20px; padding: 15px; background-color: #f8f9fa; border-radius: 4px; }
         .sort-controls label { margin-right: 10px; font-weight: bold; }
         .sort-controls a { margin-right: 10px; padding: 5px 10px; background-color: #007bff; color: white; text-decoration: none; border-radius: 3px; }
@@ -32,11 +44,36 @@
 
     <h1>📚 Library Collection</h1>
 
+    <!-- Search Form -->
+    <div class="search-section">
+        <form method="GET" action="/" class="search-form">
+            <input type="text" 
+                   name="search" 
+                   placeholder="Search books by title, author, or ISBN..." 
+                   value="{{ search_query or '' }}"
+                   class="search-input">
+            <input type="hidden" name="sort" value="{{ current_sort }}">
+            <button type="submit" class="search-button">🔍 Search</button>
+            {% if search_query %}
+                <a href="/" class="clear-search">✖ Clear</a>
+            {% endif %}
+        </form>
+        
+        {% if search_query %}
+            <div class="search-info">
+                <p>Showing results for: "<strong>{{ search_query }}</strong>"</p>
+            </div>
+        {% endif %}
+    </div>
+
     <div class="sort-controls">
         <label>Sort by:</label>
-        <a href="/?sort=title" class="{% if current_sort == 'title' %}active{% endif %}">Title</a>
-        <a href="/?sort=author" class="{% if current_sort == 'author' %}active{% endif %}">Author</a>
-        <a href="/?sort=year" class="{% if current_sort == 'year' %}active{% endif %}">Publication Year</a>
+        <a href="/?sort=title{% if search_query %}&search={{ search_query }}{% endif %}" 
+           class="{% if current_sort == 'title' %}active{% endif %}">Title</a>
+        <a href="/?sort=author{% if search_query %}&search={{ search_query }}{% endif %}" 
+           class="{% if current_sort == 'author' %}active{% endif %}">Author</a>
+        <a href="/?sort=year{% if search_query %}&search={{ search_query }}{% endif %}" 
+           class="{% if current_sort == 'year' %}active{% endif %}">Publication Year</a>
     </div>
 
     {% if books %}
@@ -70,8 +107,14 @@
         </div>
     {% else %}
         <div class="no-books">
-            <h3>No books in the library yet!</h3>
-            <p>Start by <a href="/add_author">adding an author</a> and then <a href="/add_book">add some books</a>.</p>
+            {% if search_query %}
+                <h3>No books found matching "{{ search_query }}"</h3>
+                <p>Try adjusting your search terms or <a href="/">browse all books</a>.</p>
+                <p>You can search by book title, author name, or ISBN.</p>
+            {% else %}
+                <h3>No books in the library yet!</h3>
+                <p>Start by <a href="/add_author">adding an author</a> and then <a href="/add_book">add some books</a>.</p>
+            {% endif %}
         </div>
     {% endif %}
 
